@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Play, Pause, RotateCcw, Eye, EyeOff, ArrowRight, Check, X, Languages } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Badge } from '@/components/ui/Badge'
-import { cancel, speak, isTTSAvailable } from '@/lib/speech'
+import { cancel, speakDialogue, parseDialogue, isTTSAvailable } from '@/lib/speech'
+import type { DialogueSegment } from '@/lib/speech'
 import { cn } from '@/lib/utils'
 import type { ListeningItem, ListeningQuestion } from '@/types/content'
 
@@ -25,6 +26,10 @@ export function ListeningPlayer({ item, onComplete }: Props) {
   const [correct, setCorrect] = useState(0)
   const [fillInput, setFillInput] = useState('')
   const [startedAt] = useState(() => Date.now())
+  const [activeSegmentIdx, setActiveSegmentIdx] = useState<number | null>(null)
+
+  const segments = useMemo(() => parseDialogue(item.transcript_en), [item.transcript_en])
+  const isDialogue = segments.some((s) => s.speaker !== null)
 
   useEffect(() => () => cancel(), [])
 
@@ -32,13 +37,21 @@ export function ListeningPlayer({ item, onComplete }: Props) {
     if (playing) {
       cancel()
       setPlaying(false)
+      setActiveSegmentIdx(null)
       return
     }
     setPlaying(true)
-    void speak(item.transcript_en, {
+    void speakDialogue(segments, {
       rate,
-      onEnd: () => setPlaying(false),
-      onError: () => setPlaying(false),
+      onSegment: (i) => setActiveSegmentIdx(i),
+      onEnd: () => {
+        setPlaying(false)
+        setActiveSegmentIdx(null)
+      },
+      onError: () => {
+        setPlaying(false)
+        setActiveSegmentIdx(null)
+      },
     })
   }
 
@@ -107,6 +120,15 @@ export function ListeningPlayer({ item, onComplete }: Props) {
               {playing ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8 ml-1" />}
             </Button>
           </div>
+
+          {/* Now speaking indicator */}
+          {playing && isDialogue && activeSegmentIdx !== null && (
+            <div className="mt-3 flex items-center justify-center gap-2 animate-pop">
+              <SpeakerBadge speaker={segments[activeSegmentIdx]?.speaker ?? null} />
+              <span className="text-[11px] text-slate-500">말하는 중...</span>
+            </div>
+          )}
+
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-600">
             <span>속도</span>
             {([0.7, 0.85, 1.0] as const).map((r) => (
@@ -122,6 +144,12 @@ export function ListeningPlayer({ item, onComplete }: Props) {
               </button>
             ))}
           </div>
+
+          {isDialogue && (
+            <div className="mt-3 text-center text-[11px] text-slate-500">
+              👥 {segments.filter((s) => s.speaker).length}개 대사 · 화자별로 다른 목소리
+            </div>
+          )}
         </Card>
 
         <div className="grid grid-cols-2 gap-2">
@@ -146,9 +174,26 @@ export function ListeningPlayer({ item, onComplete }: Props) {
 
         {showTranscript && (
           <Card className="p-4 bg-white">
-            <p className="text-sm text-slate-800 leading-[1.85] whitespace-pre-wrap">
-              {item.transcript_en}
-            </p>
+            {isDialogue ? (
+              <div className="space-y-2.5">
+                {segments.map((seg, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      'flex items-start gap-2 rounded-xl px-2 py-1.5 transition-colors',
+                      activeSegmentIdx === i && 'bg-sky-50 ring-1 ring-sky-200'
+                    )}
+                  >
+                    <SpeakerBadge speaker={seg.speaker} compact />
+                    <p className="text-sm text-slate-800 leading-[1.7] flex-1">{seg.text}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-800 leading-[1.85] whitespace-pre-wrap">
+                {item.transcript_en}
+              </p>
+            )}
             {showKo && (
               <p className="text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100 leading-relaxed whitespace-pre-wrap">
                 {item.transcript_ko}
@@ -221,6 +266,36 @@ export function ListeningPlayer({ item, onComplete }: Props) {
       )}
     </div>
   )
+}
+
+function SpeakerBadge({ speaker, compact }: { speaker: string | null; compact?: boolean }) {
+  const cls = classifySpeaker(speaker)
+  const emoji = cls === 'male' ? '🧑' : cls === 'female' ? '👩' : '🗣️'
+  const tone = cls === 'male' ? 'bg-sky-100 text-sky-700' : cls === 'female' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'
+  const label = speaker ?? '—'
+
+  if (compact) {
+    return (
+      <span className={cn('inline-flex items-center justify-center w-7 h-7 rounded-full text-sm flex-shrink-0', tone)}>
+        {emoji}
+      </span>
+    )
+  }
+
+  return (
+    <span className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold', tone)}>
+      <span className="text-sm">{emoji}</span>
+      {label}
+    </span>
+  )
+}
+
+function classifySpeaker(label: string | null): 'male' | 'female' | 'other' {
+  if (!label) return 'other'
+  const s = label.toUpperCase()
+  if (s === 'M' || s === 'B' || s.startsWith('MAN') || s === 'DAD' || s.startsWith('BOY')) return 'male'
+  if (s === 'W' || s === 'F' || s === 'A' || s.startsWith('WOM') || s === 'MOM' || s.startsWith('GIRL')) return 'female'
+  return 'other'
 }
 
 function QuizBody({

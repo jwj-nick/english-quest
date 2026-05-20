@@ -18,12 +18,6 @@ interface GameState {
   profile: UserProfile
   sessions: SessionLog[]
   loaded: boolean
-  // computed
-  totalXp: () => number
-  level: () => { level: number; intoLevel: number; needForNext: number }
-  xpByArea: () => Record<AreaKey, number>
-  streakDays: () => number
-  // actions
   load: () => Promise<void>
   setProfile: (patch: Partial<UserProfile>) => Promise<void>
   recordSession: (s: Omit<SessionLog, 'id' | 'startedAt'>) => Promise<SessionLog>
@@ -34,28 +28,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   profile: DEFAULT_PROFILE,
   sessions: [],
   loaded: false,
-
-  totalXp: () => get().sessions.reduce((sum, s) => sum + s.xpEarned, 0),
-  level: () => levelFromXp(get().totalXp()),
-  xpByArea: () => {
-    const out: Record<string, number> = {}
-    for (const s of get().sessions) {
-      out[s.area] = (out[s.area] ?? 0) + s.xpEarned
-    }
-    return out as Record<AreaKey, number>
-  },
-  streakDays: () => {
-    const dates = new Set(get().sessions.map((s) => s.startedAt.slice(0, 10)))
-    let streak = 0
-    let cursor = todayKey()
-    while (dates.has(cursor)) {
-      streak++
-      const d = new Date(cursor)
-      d.setDate(d.getDate() - 1)
-      cursor = d.toISOString().slice(0, 10)
-    }
-    return streak
-  },
 
   load: async () => {
     const [profile, sessions] = await Promise.all([
@@ -91,3 +63,37 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ profile: DEFAULT_PROFILE, sessions: [] })
   },
 }))
+
+/**
+ * Derived selectors — return primitives or stable references so consumers
+ * don't trigger infinite re-renders. Compute via useMemo in components when
+ * returning objects.
+ */
+export function totalXp(sessions: SessionLog[]): number {
+  return sessions.reduce((sum, s) => sum + s.xpEarned, 0)
+}
+
+export function xpByArea(sessions: SessionLog[]): Record<AreaKey, number> {
+  const out: Record<string, number> = {}
+  for (const s of sessions) {
+    out[s.area] = (out[s.area] ?? 0) + s.xpEarned
+  }
+  return out as Record<AreaKey, number>
+}
+
+export function streakDays(sessions: SessionLog[]): number {
+  const dates = new Set(sessions.map((s) => s.startedAt.slice(0, 10)))
+  let streak = 0
+  let cursor = todayKey()
+  while (dates.has(cursor)) {
+    streak++
+    const d = new Date(cursor)
+    d.setDate(d.getDate() - 1)
+    cursor = d.toISOString().slice(0, 10)
+  }
+  return streak
+}
+
+export function levelInfo(sessions: SessionLog[]) {
+  return levelFromXp(totalXp(sessions))
+}

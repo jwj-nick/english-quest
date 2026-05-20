@@ -1,4 +1,11 @@
-import { useGameStore } from '@/store/game.store'
+import { useMemo } from 'react'
+import {
+  useGameStore,
+  totalXp as calcTotalXp,
+  xpByArea as calcXpByArea,
+  streakDays,
+  levelInfo,
+} from '@/store/game.store'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { ProgressBar } from '@/components/ui/ProgressBar'
@@ -7,10 +14,10 @@ import { levelTitle } from '@/lib/level'
 
 export function ProgressPage() {
   const sessions = useGameStore((s) => s.sessions)
-  const lv = useGameStore((s) => s.level())
-  const totalXp = useGameStore((s) => s.totalXp())
-  const xpByArea = useGameStore((s) => s.xpByArea())
-  const streak = useGameStore((s) => s.streakDays())
+  const lv = useMemo(() => levelInfo(sessions), [sessions])
+  const totalXp = useMemo(() => calcTotalXp(sessions), [sessions])
+  const xpByArea = useMemo(() => calcXpByArea(sessions), [sessions])
+  const streak = useMemo(() => streakDays(sessions), [sessions])
 
   const last7 = last7DaysXP(sessions)
   const maxDayXp = Math.max(1, ...last7.map((d) => d.xp))

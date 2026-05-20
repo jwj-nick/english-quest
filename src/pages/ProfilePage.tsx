@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Download, Trash2 } from 'lucide-react'
-import { useGameStore } from '@/store/game.store'
+import { useGameStore, levelInfo } from '@/store/game.store'
 import { storage } from '@/lib/storage'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -27,7 +27,8 @@ const ACCENT_STYLES: Record<string, string> = {
 
 export function ProfilePage() {
   const profile = useGameStore((s) => s.profile)
-  const lv = useGameStore((s) => s.level())
+  const sessions = useGameStore((s) => s.sessions)
+  const lv = useMemo(() => levelInfo(sessions), [sessions])
   const setProfile = useGameStore((s) => s.setProfile)
   const resetAll = useGameStore((s) => s.resetAll)
   const [name, setName] = useState(profile.name)

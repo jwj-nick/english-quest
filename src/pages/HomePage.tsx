@@ -1,19 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Trophy, Calendar, ArrowRight } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { DungeonCard } from '@/components/shared/DungeonCard'
 import { DUNGEONS } from '@/lib/dungeons'
-import { useGameStore } from '@/store/game.store'
+import { useGameStore, levelInfo, xpByArea as calcXpByArea } from '@/store/game.store'
 import { useSessionStore } from '@/store/session.store'
 import { levelTitle } from '@/lib/level'
 
 export function HomePage() {
-  const lv = useGameStore((s) => s.level())
   const profile = useGameStore((s) => s.profile)
-  const xpByArea = useGameStore((s) => s.xpByArea())
   const sessions = useGameStore((s) => s.sessions)
+  const lv = useMemo(() => levelInfo(sessions), [sessions])
+  const xpByArea = useMemo(() => calcXpByArea(sessions), [sessions])
 
   const { weekMeta, loading, error, loadWeek, week } = useSessionStore()
 

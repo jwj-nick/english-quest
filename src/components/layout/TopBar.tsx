@@ -1,6 +1,7 @@
+import { useMemo } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Flame, Sparkles } from 'lucide-react'
-import { useGameStore } from '@/store/game.store'
+import { useGameStore, totalXp as calcTotalXp, levelInfo, streakDays } from '@/store/game.store'
 import { levelTitle } from '@/lib/level'
 import { Button } from '@/components/ui/Button'
 
@@ -8,9 +9,10 @@ export function TopBar() {
   const location = useLocation()
   const navigate = useNavigate()
   const profile = useGameStore((s) => s.profile)
-  const totalXp = useGameStore((s) => s.totalXp())
-  const lv = useGameStore((s) => s.level())
-  const streak = useGameStore((s) => s.streakDays())
+  const sessions = useGameStore((s) => s.sessions)
+  const totalXp = useMemo(() => calcTotalXp(sessions), [sessions])
+  const lv = useMemo(() => levelInfo(sessions), [sessions])
+  const streak = useMemo(() => streakDays(sessions), [sessions])
 
   const isHome = location.pathname === '/'
 

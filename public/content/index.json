@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-05-20T22:35:07.572719+00:00",
+  "currentWeek": "2026-W31",
+  "weeks": [
+    {
+      "week": "2026-W30",
+      "theme": "Learning and Memory",
+      "startDate": "2026-07-20",
+      "endDate": "2026-07-26"
+    },
+    {
+      "week": "2026-W31",
+      "theme": "My School Day",
+      "startDate": "2026-07-27",
+      "endDate": "2026-08-02"
+    }
+  ]
+}

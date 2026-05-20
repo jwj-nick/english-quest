@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { content, CURRENT_WEEK } from '@/lib/content'
+import { content, FALLBACK_WEEK } from '@/lib/content'
+import { useSessionStore } from '@/store/session.store'
 import type {
   ListeningFile,
   ReadingFile,
@@ -36,11 +37,18 @@ function useFetcher<T>(fetcher: () => Promise<T>, deps: unknown[]): State<T> {
   return state
 }
 
-export function useListening(week: string = CURRENT_WEEK): State<ListeningFile> {
+function useCurrentWeek(weekOverride?: string): string {
+  const sessionWeek = useSessionStore((s) => s.week)
+  return weekOverride ?? sessionWeek ?? FALLBACK_WEEK
+}
+
+export function useListening(weekOverride?: string): State<ListeningFile> {
+  const week = useCurrentWeek(weekOverride)
   return useFetcher(() => content.listening(week), [week])
 }
 
-export function useReading(week: string = CURRENT_WEEK): State<ReadingFile> {
+export function useReading(weekOverride?: string): State<ReadingFile> {
+  const week = useCurrentWeek(weekOverride)
   return useFetcher(() => content.reading(week), [week])
 }
 
@@ -120,15 +128,19 @@ function url(week: string, file: string) {
   return `${base}/content/${week}/${file}`
 }
 
-export function useWriting(week: string = CURRENT_WEEK): State<WritingFile> {
+export function useWriting(weekOverride?: string): State<WritingFile> {
+  const week = useCurrentWeek(weekOverride)
   return useFetcher(() => fetchJson<WritingFile>(url(week, 'writing.json')), [week])
 }
-export function useShadowing(week: string = CURRENT_WEEK): State<ShadowingFile> {
+export function useShadowing(weekOverride?: string): State<ShadowingFile> {
+  const week = useCurrentWeek(weekOverride)
   return useFetcher(() => fetchJson<ShadowingFile>(url(week, 'speaking-shadowing.json')), [week])
 }
-export function useQA(week: string = CURRENT_WEEK): State<QAFile> {
+export function useQA(weekOverride?: string): State<QAFile> {
+  const week = useCurrentWeek(weekOverride)
   return useFetcher(() => fetchJson<QAFile>(url(week, 'speaking-qa.json')), [week])
 }
-export function useRoleplay(week: string = CURRENT_WEEK): State<RoleplayFile> {
+export function useRoleplay(weekOverride?: string): State<RoleplayFile> {
+  const week = useCurrentWeek(weekOverride)
   return useFetcher(() => fetchJson<RoleplayFile>(url(week, 'speaking-roleplay.json')), [week])
 }

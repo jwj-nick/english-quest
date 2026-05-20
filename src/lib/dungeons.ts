@@ -1,8 +1,7 @@
 import type { DungeonInfo } from '@/types/game'
 
 /**
- * 5개 영역 = 5개 던전. 각 던전의 시각·문구를 한곳에 모음.
- * 활성 상태(enabled)는 W3-W6 진행에 따라 점진 변경.
+ * 5개 영역 = 5개 던전. 모두 V1 동작. 각 던전 시각·문구를 한곳에 모음.
  */
 export const DUNGEONS: readonly DungeonInfo[] = [
   {
@@ -23,7 +22,7 @@ export const DUNGEONS: readonly DungeonInfo[] = [
     accent: 'text-sky-700',
     bg: 'from-sky-100 to-sky-50',
     ring: 'ring-sky-200',
-    enabled: false,
+    enabled: true,
   },
   {
     key: 'reading',
@@ -33,26 +32,26 @@ export const DUNGEONS: readonly DungeonInfo[] = [
     accent: 'text-amber-700',
     bg: 'from-amber-100 to-amber-50',
     ring: 'ring-amber-200',
-    enabled: false,
+    enabled: true,
   },
   {
     key: 'speaking_qa',
     title: '말의 무대',
-    subtitle: 'Q&A · 상황극 · 따라읽기',
+    subtitle: '따라 읽기 · Q&A · 상황극',
     emoji: '🎤',
     accent: 'text-rose-700',
     bg: 'from-rose-100 to-rose-50',
     ring: 'ring-rose-200',
-    enabled: false,
+    enabled: true,
   },
   {
     key: 'writing',
     title: '글의 탑',
-    subtitle: '영작 · AI 첨삭',
+    subtitle: '영작 · 모범답안 비교',
     emoji: '✍️',
     accent: 'text-violet-700',
     bg: 'from-violet-100 to-violet-50',
     ring: 'ring-violet-200',
-    enabled: false,
+    enabled: true,
   },
 ] as const

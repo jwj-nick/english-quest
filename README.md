@@ -1,8 +1,15 @@
-# 🗡️ English Quest
+# 🗡️ English Quest (Base / Showcase)
 
 매일 5분, 던전을 클리어하며 영어 정복 — 두 아이를 위한 RPG형 영어 자습 앱.
 
 **Live:** https://jwj-nick.github.io/english-quest/
+
+> **🔒 콘텐츠 freeze (2026-05-22 ~)** — 이 repo 는 **베이스 코드 + 쇼케이스** 용도입니다.
+> 새 콘텐츠는 더 이상 추가되지 않습니다. 실제 사용 앱은 아래 두 곳:
+> - 🟦 중학생: [`jwj-nick/english-quest-mid`](https://github.com/jwj-nick/english-quest-mid) — https://jwj-nick.github.io/english-quest-mid/
+> - 🟪 고등학생: [`jwj-nick/english-quest-high`](https://github.com/jwj-nick/english-quest-high) — https://jwj-nick.github.io/english-quest-high/
+>
+> 새 기능·UI 개선은 본 repo 에 PR → 두 앱에 cherry-pick 또는 수동 동기화하는 방식으로 운영합니다.
 
 ## 컨셉
 

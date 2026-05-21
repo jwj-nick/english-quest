@@ -16,6 +16,13 @@ function contentUrl(week: string, file: string): string {
   return `${base}/content/${week}/${file}`
 }
 
+/** 콘텐츠 폴더 내 상대 경로(예: "images/vocab_w31_001.webp")를 절대 URL로 변환 */
+export function contentAsset(week: string, relative: string | undefined): string | undefined {
+  if (!relative) return undefined
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  return `${base}/content/${week}/${relative}`
+}
+
 function indexUrl(): string {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '')
   return `${base}/content/index.json`

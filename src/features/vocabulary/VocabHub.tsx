@@ -15,6 +15,7 @@ interface Props {
   items: VocabItem[]
   theme: string
   xpWeight: number
+  week: string
 }
 
 interface Result {
@@ -27,7 +28,7 @@ interface Result {
   weakIds: string[]
 }
 
-export function VocabHub({ items, theme, xpWeight }: Props) {
+export function VocabHub({ items, theme, xpWeight, week }: Props) {
   const [mode, setMode] = useState<Mode>('menu')
   const [lastResult, setLastResult] = useState<Result | null>(null)
   const recordSession = useGameStore((s) => s.recordSession)
@@ -78,7 +79,7 @@ export function VocabHub({ items, theme, xpWeight }: Props) {
   if (mode === 'browse') {
     return (
       <Section title="단어 목록" onBack={() => setMode('menu')}>
-        <WordBrowser items={items} />
+        <WordBrowser items={items} week={week} />
       </Section>
     )
   }

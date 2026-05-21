@@ -39,6 +39,8 @@ export interface VocabItem {
   frequency: 'high' | 'mid' | 'low'
   tags: string[]
   audio: string
+  /** 옵션: 단어 시각화 이미지 상대 경로 (예: "images/vocab_w31_001.webp") */
+  image_url?: string
 }
 
 export interface VocabularyFile {
@@ -97,6 +99,8 @@ export interface ReadingItem {
   questions: ReadingQuestion[]
   vocabulary_notes: { word: string; meaning_ko: string }[]
   tags: string[]
+  /** 옵션: 지문 hero 이미지 상대 경로 */
+  image_url?: string
 }
 
 export interface ReadingFile {

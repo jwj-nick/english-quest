@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Volume2 } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { contentAsset } from '@/lib/content'
 import { cn } from '@/lib/utils'
 import type { VocabItem } from '@/types/content'
 
 interface Props {
   items: VocabItem[]
+  week?: string
 }
 
-export function WordBrowser({ items }: Props) {
+export function WordBrowser({ items, week }: Props) {
   const [openId, setOpenId] = useState<string | null>(null)
 
   if (items.length === 0) {
@@ -20,21 +22,30 @@ export function WordBrowser({ items }: Props) {
     <div className="space-y-2">
       {items.map((it) => {
         const open = openId === it.id
+        const imgUrl = week ? contentAsset(week, it.image_url) : undefined
         return (
           <Card key={it.id} className="overflow-hidden">
             <button
               onClick={() => setOpenId(open ? null : it.id)}
-              className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-slate-50/60 transition-colors"
+              className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
             >
+              {imgUrl && (
+                <img
+                  src={imgUrl}
+                  alt=""
+                  className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                  loading="lazy"
+                />
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-base font-bold text-slate-900">{it.word}</span>
-                  <span className="text-[11px] text-slate-500">{it.ipa}</span>
+                  <span className="text-base font-bold text-slate-900 dark:text-slate-100">{it.word}</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">{it.ipa}</span>
                   <Badge tone="slate" className="text-[10px]">
                     {it.pos}
                   </Badge>
                 </div>
-                <p className="text-sm text-slate-600 mt-0.5 truncate">{it.korean}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5 truncate">{it.korean}</p>
               </div>
               <DifficultyBadge level={it.difficulty} />
               {open ? (

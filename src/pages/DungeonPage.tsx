@@ -43,7 +43,7 @@ export function DungeonPage() {
 
   if (area === 'vocabulary') {
     if (!vocab) return <p className="text-center text-sm text-slate-500 py-8">콘텐츠 준비 중...</p>
-    return <VocabHub items={vocab.items} theme={vocab.theme} xpWeight={xpWeight('vocabulary')} />
+    return <VocabHub items={vocab.items} theme={vocab.theme} xpWeight={xpWeight('vocabulary')} week={week} />
   }
   if (area === 'reading') {
     return (

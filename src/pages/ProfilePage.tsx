@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { BadgeShelf } from '@/components/shared/BadgeShelf'
 import { cn } from '@/lib/utils'
 import { levelTitle } from '@/lib/level'
 
@@ -163,6 +164,11 @@ export function ProfilePage() {
             </button>
           ))}
         </div>
+      </Card>
+
+      {/* Badges */}
+      <Card className="p-4">
+        <BadgeShelf />
       </Card>
 
       {/* Theme */}

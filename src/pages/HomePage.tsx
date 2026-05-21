@@ -4,6 +4,7 @@ import { Trophy, Calendar, ArrowRight } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { DungeonCard } from '@/components/shared/DungeonCard'
+import { DailyMissions } from '@/components/shared/DailyMissions'
 import { DUNGEONS } from '@/lib/dungeons'
 import { useGameStore, levelInfo, xpByArea as calcXpByArea } from '@/store/game.store'
 import { useSessionStore } from '@/store/session.store'
@@ -75,6 +76,9 @@ export function HomePage() {
           <ProgressBar value={lv.intoLevel} max={lv.needForNext} color="violet" />
         </div>
       </Card>
+
+      {/* Daily missions */}
+      <DailyMissions />
 
       {/* Status messages */}
       {loading && <p className="text-center text-sm text-slate-500 py-4">이번 주 던전 불러오는 중...</p>}

@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import { BookOpen, Shuffle, ListChecks, ArrowLeft } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { BookOpen, Shuffle, ListChecks, ArrowLeft, Repeat } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { CardMatch } from './CardMatch'
 import { FillBlank } from './FillBlank'
 import { WordBrowser } from './WordBrowser'
 import { useGameStore } from '@/store/game.store'
+import { getDueWords, getWeakWordIds } from '@/lib/sr'
 import { cn } from '@/lib/utils'
 import type { VocabItem } from '@/types/content'
 
@@ -28,10 +29,33 @@ interface Result {
   weakIds: string[]
 }
 
+type ItemSelector = 'all' | 'due' | 'weak'
+
 export function VocabHub({ items, theme, xpWeight, week }: Props) {
   const [mode, setMode] = useState<Mode>('menu')
+  const [selector, setSelector] = useState<ItemSelector>('all')
   const [lastResult, setLastResult] = useState<Result | null>(null)
   const recordSession = useGameStore((s) => s.recordSession)
+  const sessions = useGameStore((s) => s.sessions)
+
+  const allIds = useMemo(() => items.map((i) => i.id), [items])
+  const { dueIds, newIds, reviewIds } = useMemo(
+    () => getDueWords(allIds, sessions),
+    [allIds, sessions]
+  )
+  const weakIds = useMemo(() => getWeakWordIds(sessions, 10), [sessions])
+
+  const selectedItems = useMemo(() => {
+    if (selector === 'due') {
+      const set = new Set(dueIds)
+      return items.filter((i) => set.has(i.id))
+    }
+    if (selector === 'weak') {
+      const set = new Set(weakIds)
+      return items.filter((i) => set.has(i.id))
+    }
+    return items
+  }, [items, selector, dueIds, weakIds])
 
   const handleComplete = async (
     type: 'match' | 'fill',
@@ -62,7 +86,7 @@ export function VocabHub({ items, theme, xpWeight, week }: Props) {
         title="짝 맞추기"
         onBack={() => setMode('menu')}
       >
-        <CardMatch items={items} onComplete={(r) => handleComplete('match', r)} />
+        <CardMatch items={selectedItems.length > 0 ? selectedItems : items} onComplete={(r) => handleComplete('match', r)} />
       </Section>
     )
   }
@@ -72,14 +96,14 @@ export function VocabHub({ items, theme, xpWeight, week }: Props) {
         title="빈칸 채우기"
         onBack={() => setMode('menu')}
       >
-        <FillBlank items={items} onComplete={(r) => handleComplete('fill', r)} />
+        <FillBlank items={selectedItems.length > 0 ? selectedItems : items} onComplete={(r) => handleComplete('fill', r)} />
       </Section>
     )
   }
   if (mode === 'browse') {
     return (
       <Section title="단어 목록" onBack={() => setMode('menu')}>
-        <WordBrowser items={items} week={week} />
+        <WordBrowser items={selectedItems.length > 0 ? selectedItems : items} week={week} />
       </Section>
     )
   }
@@ -90,12 +114,45 @@ export function VocabHub({ items, theme, xpWeight, week }: Props) {
   return (
     <div className="space-y-5">
       <header>
-        <div className="text-xs text-emerald-600 font-semibold uppercase tracking-wider">
+        <div className="text-xs text-emerald-600 dark:text-emerald-300 font-semibold uppercase tracking-wider">
           어휘의 숲
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mt-0.5">{theme}</h1>
-        <p className="text-sm text-slate-600 mt-1">단어 {items.length}개 · 모드를 선택하세요</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">{theme}</h1>
+        <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">단어 {items.length}개 · 모드를 선택하세요</p>
       </header>
+
+      {/* SR selector */}
+      {(dueIds.length > 0 || weakIds.length > 0) && (
+        <Card className="p-3 bg-emerald-50/40 dark:bg-emerald-900/15 border-emerald-200/60 dark:border-emerald-700/40">
+          <div className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+            <Repeat className="h-3.5 w-3.5" />
+            오늘의 단어 풀
+          </div>
+          <div className="grid grid-cols-3 gap-1.5">
+            <SelectorPill
+              active={selector === 'all'}
+              onClick={() => setSelector('all')}
+              label="전체"
+              count={items.length}
+            />
+            <SelectorPill
+              active={selector === 'due'}
+              onClick={() => setSelector('due')}
+              label="오늘 복습"
+              count={dueIds.length}
+              disabled={dueIds.length === 0}
+              hint={`새 ${newIds.length} · 재학습 ${reviewIds.length}`}
+            />
+            <SelectorPill
+              active={selector === 'weak'}
+              onClick={() => setSelector('weak')}
+              label="약한 단어"
+              count={weakIds.length}
+              disabled={weakIds.length === 0}
+            />
+          </div>
+        </Card>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <ModeCard
@@ -122,6 +179,42 @@ export function VocabHub({ items, theme, xpWeight, week }: Props) {
         />
       </div>
     </div>
+  )
+}
+
+function SelectorPill({
+  active,
+  onClick,
+  label,
+  count,
+  disabled,
+  hint,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+  count: number
+  disabled?: boolean
+  hint?: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'rounded-xl px-2 py-1.5 text-xs font-semibold transition-all border',
+        active
+          ? 'bg-emerald-500 text-white border-emerald-500'
+          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50',
+        disabled && 'opacity-50 cursor-not-allowed'
+      )}
+      title={hint}
+    >
+      <div>{label}</div>
+      <div className={cn('text-[10px] mt-0.5 tabular-nums', active ? 'text-white/80' : 'text-slate-500 dark:text-slate-400')}>
+        {count}개
+      </div>
+    </button>
   )
 }
 

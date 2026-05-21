@@ -4,6 +4,7 @@ import type { SessionLog, UserProfile } from '@/types/game'
 import type { AreaKey } from '@/types/content'
 import { levelFromXp } from '@/lib/level'
 import { isoNow, todayKey } from '@/lib/utils'
+import { celebrateLevelUp } from '@/lib/celebrate'
 import { nanoid } from 'nanoid'
 
 const DEFAULT_PROFILE: UserProfile = {
@@ -48,13 +49,21 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   recordSession: async (s) => {
+    const prevSessions = get().sessions
+    const prevLevel = levelFromXp(prevSessions.reduce((sum, x) => sum + x.xpEarned, 0)).level
     const full: SessionLog = {
       ...s,
       id: nanoid(10),
       startedAt: isoNow(),
     }
     await storage.addSession(full)
-    set({ sessions: [full, ...get().sessions] })
+    const nextSessions = [full, ...prevSessions]
+    set({ sessions: nextSessions })
+    const nextLevel = levelFromXp(nextSessions.reduce((sum, x) => sum + x.xpEarned, 0)).level
+    if (nextLevel > prevLevel) {
+      // 레벨업 — 다음 tick에 confetti (DOM 준비 후)
+      setTimeout(() => celebrateLevelUp(), 500)
+    }
     return full
   },
 

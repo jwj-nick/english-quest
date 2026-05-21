@@ -5,6 +5,7 @@ import { storage } from '@/lib/storage'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { cn } from '@/lib/utils'
 import { levelTitle } from '@/lib/level'
 
@@ -161,6 +162,16 @@ export function ProfilePage() {
               {a}
             </button>
           ))}
+        </div>
+      </Card>
+
+      {/* Theme */}
+      <Card className="p-4">
+        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+          테마
+        </label>
+        <div className="mt-2">
+          <ThemeToggle />
         </div>
       </Card>
 

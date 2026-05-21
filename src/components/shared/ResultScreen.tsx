@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { celebratePerfect } from '@/lib/celebrate'
 import { cn } from '@/lib/utils'
 
 interface Stat {
@@ -18,11 +20,11 @@ interface Props {
 }
 
 const ACCENTS = {
-  amber: 'from-amber-50 to-amber-100 border-amber-200 text-amber-700',
-  violet: 'from-violet-50 to-violet-100 border-violet-200 text-violet-700',
-  emerald: 'from-emerald-50 to-emerald-100 border-emerald-200 text-emerald-700',
-  rose: 'from-rose-50 to-rose-100 border-rose-200 text-rose-700',
-  sky: 'from-sky-50 to-sky-100 border-sky-200 text-sky-700',
+  amber: 'from-amber-50 to-amber-100 border-amber-200 text-amber-700 dark:from-amber-900/30 dark:to-amber-900/10 dark:border-amber-700 dark:text-amber-300',
+  violet: 'from-violet-50 to-violet-100 border-violet-200 text-violet-700 dark:from-violet-900/30 dark:to-violet-900/10 dark:border-violet-700 dark:text-violet-300',
+  emerald: 'from-emerald-50 to-emerald-100 border-emerald-200 text-emerald-700 dark:from-emerald-900/30 dark:to-emerald-900/10 dark:border-emerald-700 dark:text-emerald-300',
+  rose: 'from-rose-50 to-rose-100 border-rose-200 text-rose-700 dark:from-rose-900/30 dark:to-rose-900/10 dark:border-rose-700 dark:text-rose-300',
+  sky: 'from-sky-50 to-sky-100 border-sky-200 text-sky-700 dark:from-sky-900/30 dark:to-sky-900/10 dark:border-sky-700 dark:text-sky-300',
 }
 
 export function ResultScreen({ xpEarned, stats, ratio, accent = 'amber', onAgain, onHome, message }: Props) {
@@ -34,11 +36,16 @@ export function ResultScreen({ xpEarned, stats, ratio, accent = 'amber', onAgain
     : '다시 한번 가볍게 도전!'
   const emoji = star === 3 ? '🏆' : star === 2 ? '⭐' : star === 1 ? '💪' : '🌱'
 
+  // star=3 시 confetti
+  useEffect(() => {
+    if (star === 3) celebratePerfect()
+  }, [star])
+
   return (
     <div className="max-w-md mx-auto pt-6 space-y-6">
       <div className="text-center animate-pop">
         <div className="text-6xl mb-2">{emoji}</div>
-        <p className="text-2xl font-bold text-slate-900">{message ?? defaultMsg}</p>
+        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{message ?? defaultMsg}</p>
       </div>
 
       <Card className={cn('p-5 bg-gradient-to-br border', ACCENTS[accent])}>
@@ -53,8 +60,8 @@ export function ResultScreen({ xpEarned, stats, ratio, accent = 'amber', onAgain
           >
             {stats.map((s) => (
               <div key={s.label}>
-                <div className="text-[10px] uppercase tracking-wider text-slate-500">{s.label}</div>
-                <div className="text-lg font-bold text-slate-900 tabular-nums">{s.value}</div>
+                <div className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400">{s.label}</div>
+                <div className="text-lg font-bold text-slate-900 dark:text-slate-100 tabular-nums">{s.value}</div>
               </div>
             ))}
           </div>

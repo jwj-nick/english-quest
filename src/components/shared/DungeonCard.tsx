@@ -37,7 +37,7 @@ export function DungeonCard({ dungeon, to, xpEarned, goalCompletions, completed 
         <div
           className={cn(
             'flex items-center justify-center w-14 h-14 rounded-2xl text-3xl shadow-sm',
-            'bg-white/70 backdrop-blur-sm'
+            'bg-white/70 dark:bg-slate-800/60 backdrop-blur-sm'
           )}
         >
           {dungeon.emoji}
@@ -46,31 +46,31 @@ export function DungeonCard({ dungeon, to, xpEarned, goalCompletions, completed 
           <div className="flex items-center gap-2">
             <h3 className={cn('font-bold text-base', dungeon.accent)}>{dungeon.title}</h3>
             {isLocked && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-white/60 px-1.5 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-white/60 dark:bg-slate-800/60 px-1.5 py-0.5 rounded-full">
                 <Lock className="h-3 w-3" />
                 준비 중
               </span>
             )}
             {isDone && !isLocked && (
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-full">
                 ✓ 클리어
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-600 mt-0.5">{dungeon.subtitle}</p>
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{dungeon.subtitle}</p>
 
           {!isLocked && goalCompletions > 0 && (
             <div className="mt-3">
-              <div className="h-1.5 bg-white/60 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-white/60 dark:bg-slate-700/40 rounded-full overflow-hidden">
                 <div
                   className={cn(
                     'h-full rounded-full transition-all duration-500',
-                    isDone ? 'bg-emerald-500' : 'bg-slate-700/70'
+                    isDone ? 'bg-emerald-500' : 'bg-slate-700/70 dark:bg-slate-300/70'
                   )}
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <div className="mt-1 flex items-center justify-between text-[10px] text-slate-600">
+              <div className="mt-1 flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-300">
                 <span>
                   주간 {completed} / {goalCompletions}
                 </span>

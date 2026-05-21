@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* dark variant: class 기반 토글. html.dark에 적용 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", "Pretendard", system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
@@ -16,6 +19,10 @@
     color: #0f172a;
     overscroll-behavior-y: none;
   }
+  .dark body {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    color: #f1f5f9;
+  }
   button { cursor: pointer; }
   /* Hide tap highlight on mobile */
   * { -webkit-tap-highlight-color: transparent; }
@@ -27,6 +34,9 @@
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+  }
+  .dark .glass {
+    background: rgba(15, 23, 42, 0.72);
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
